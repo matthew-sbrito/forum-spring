@@ -13,7 +13,7 @@ public class PaginationResponse<T> {
 
     public PaginationResponse(
             List<T> list,
-            Page<T> page
+            Page page
     ) {
         this.list        = list;
         this.currentPage = page.getNumber() + 1;
