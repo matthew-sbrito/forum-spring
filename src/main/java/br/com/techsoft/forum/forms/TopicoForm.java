@@ -6,9 +6,19 @@ import br.com.techsoft.forum.repositories.CursoRepository;
 
 import javax.persistence.EntityNotFoundException;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class TopicoForm {
+
+    @NotNull @NotEmpty @Size(min = 5)
     private String titulo;
+
+    @NotNull @NotEmpty @Size(min = 5)
     private String mensagem;
+
+    @NotNull @NotEmpty
     private String nomeCurso;
 
     public Topico get(CursoRepository cursoRepository) throws EntityNotFoundException {
@@ -33,13 +43,9 @@ public class TopicoForm {
         return mensagem;
     }
 
-    public void setMensagem(String mensagem) {
-        this.mensagem = mensagem;
-    }
+    public void setMensagem(String mensagem) { this.mensagem = mensagem; }
 
-    public String getNomeCurso() {
-        return nomeCurso;
-    }
+    public String getNomeCurso() { return nomeCurso; }
 
     public void setNomeCurso(String nomeCurso) {
         this.nomeCurso = nomeCurso;
