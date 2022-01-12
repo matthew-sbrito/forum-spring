@@ -1,5 +1,7 @@
 package br.com.techsoft.forum.forms;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -13,6 +15,10 @@ public class LoginForm {
 
     public String getEmail() {
         return email;
+    }
+
+    public UsernamePasswordAuthenticationToken authData() {
+        return new UsernamePasswordAuthenticationToken(email, senha);
     }
 
     public void setEmail(String email) {

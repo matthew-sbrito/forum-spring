@@ -1,11 +1,14 @@
 package br.com.techsoft.forum.controllers;
 
+import br.com.techsoft.forum.dtos.TokenDto;
 import br.com.techsoft.forum.forms.LoginForm;
-import br.com.techsoft.forum.models.Usuario;
-import br.com.techsoft.forum.services.AuthenticateService;
+import br.com.techsoft.forum.services.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,14 +21,21 @@ import javax.validation.Valid;
 public class AuthenticateController {
 
     @Autowired
-    AuthenticateService authenticateService;
+    AuthenticationManager authenticationManager;
+
+    @Autowired
+    TokenService tokenService;
 
     @PostMapping
-    public ResponseEntity<?> authenticate(@RequestBody @Valid LoginForm form) {
-        System.out.println(form.getEmail());
-        System.out.println(form.getSenha());
-        UserDetails usuario = authenticateService.loadUserByUsername(form.getEmail());
-        System.out.println(usuario.getUsername());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<TokenDto> authenticate(@RequestBody @Valid LoginForm form) {
+        UsernamePasswordAuthenticationToken authData = form.authData();
+
+        try {
+             Authentication authentication = authenticationManager.authenticate(authData);
+             String token = tokenService.encode(authentication);
+             return ResponseEntity.ok(new TokenDto(token, "Bearer"));
+        }catch (AuthenticationException e) {
+            return  ResponseEntity.badRequest().build();
+        }
     }
 }
