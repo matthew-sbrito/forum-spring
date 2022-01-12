@@ -6,23 +6,23 @@ import java.util.List;
 
 public class PaginationResponse<T> {
 
-    private List<T> list;
+    private List<T> content;
     private Integer currentPage;
     private Long    totalItems;
     private Integer totalPages;
 
     public PaginationResponse(
-            List<T> list,
+            List<T> content,
             Page page
     ) {
-        this.list        = list;
+        this.content     = content;
         this.currentPage = page.getNumber() + 1;
         this.totalItems  = page.getTotalElements();
         this.totalPages  = page.getTotalPages();
     }
 
     public List<T> getList() {
-        return list;
+        return content;
     }
 
     public Integer getCurrentPage() {

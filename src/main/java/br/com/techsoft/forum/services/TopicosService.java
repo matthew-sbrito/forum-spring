@@ -7,55 +7,44 @@ import br.com.techsoft.forum.forms.TopicoForm;
 import br.com.techsoft.forum.models.Topico;
 import br.com.techsoft.forum.repositories.CursoRepository;
 import br.com.techsoft.forum.repositories.TopicoRepository;
-import br.com.techsoft.forum.utils.PaginationResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class TopicosService {
 
     @Autowired
-    private TopicoRepository _topicoRepository;
+    private TopicoRepository topicoRepository;
 
     @Autowired
-    private CursoRepository _cursoRepository;
+    private CursoRepository cursoRepository;
 
-    public PaginationResponse<TopicoDto> list(String curse, Integer page, Integer size) throws EntityNotFoundException {
-        Integer currentPage = page - 1;
-        Pageable paging = PageRequest.of(currentPage, size);
+    public Page<TopicoDto> list(String curse, Pageable pageable) throws EntityNotFoundException {
         Page<Topico> pagingTopic;
-
         if(curse == null)
-            pagingTopic = _topicoRepository.findAll(paging);
+            pagingTopic = topicoRepository.findAll(pageable);
         else
-            pagingTopic = _topicoRepository.findByCursoNomeContainingIgnoreCase(curse, paging);
+            pagingTopic = topicoRepository.findByCursoNomeContainingIgnoreCase(curse, pageable);
 
-        List<TopicoDto> topicsDto = TopicoDto.list(pagingTopic.getContent());
-
-        if(!topicsDto.isEmpty()){
-            return new PaginationResponse<TopicoDto>(topicsDto, pagingTopic);
-        }
-        throw new EntityNotFoundException();
+        return pagingTopic.map(TopicoDto::new);
     }
 
     public TopicoDto create(TopicoForm topicoForm) throws EntityNotFoundException {
-        Topico topico = topicoForm.get(_cursoRepository);
-        Topico topicoSave = _topicoRepository.save(topico);
+        Topico topico = topicoForm.get(cursoRepository);
+        Topico topicoSave = topicoRepository.save(topico);
         return new TopicoDto(topicoSave);
     }
 
     public TopicoDetailsDto findOne(Long id) throws EntityNotFoundException {
-        Optional<Topico> topico = _topicoRepository.findById(id);
+        Optional<Topico> topico = topicoRepository.findById(id);
 
         if(!topico.isPresent()){
             throw new EntityNotFoundException();
@@ -67,7 +56,7 @@ public class TopicosService {
     }
 
     public TopicoDto update(Long id, AttTopicoForm attTopicoForm) throws EntityNotFoundException, Exception {
-        Optional<Topico> findTopico = _topicoRepository.findById(id);
+        Optional<Topico> findTopico = topicoRepository.findById(id);
 
         if(!findTopico.isPresent()){
             throw new EntityNotFoundException();
@@ -78,19 +67,19 @@ public class TopicosService {
         topico.setTitulo(attTopicoForm.getTitulo());
         topico.setMensagem(attTopicoForm.getMensagem());
 
-        _topicoRepository.save(topico);
+        topicoRepository.save(topico);
 
         return new TopicoDto(topico);
     }
 
     public boolean delete(Long id) throws EntityNotFoundException {
-        Optional<Topico> findTopico = _topicoRepository.findById(id);
+        Optional<Topico> findTopico = topicoRepository.findById(id);
 
         if(!findTopico.isPresent()){
             throw new EntityNotFoundException();
         }
 
-        _topicoRepository.delete(findTopico.get());
+        topicoRepository.delete(findTopico.get());
 
         return true;
     }

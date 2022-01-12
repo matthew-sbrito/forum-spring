@@ -5,11 +5,14 @@ import br.com.techsoft.forum.dtos.TopicoDto;
 
 import br.com.techsoft.forum.forms.AttTopicoForm;
 import br.com.techsoft.forum.forms.TopicoForm;
-import br.com.techsoft.forum.models.Topico;
 import br.com.techsoft.forum.services.TopicosService;
-import br.com.techsoft.forum.utils.PaginationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -26,16 +29,18 @@ import java.net.URI;
 public class TopicosController {
 
     @Autowired
-    private TopicosService _topicosService;
+    private TopicosService topicosService;
 
     @GetMapping
-    public ResponseEntity<PaginationResponse<TopicoDto>> list(
+    @Cacheable(value = "topicsList")
+    public ResponseEntity<Page<TopicoDto>> list(
             @RequestParam(required = false) String curso,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int size
+            @PageableDefault(
+                    sort = "id", direction = Sort.Direction.DESC, page = 0, size = 5
+            ) Pageable pageable
     ) throws ResponseStatusException {
        try {
-           PaginationResponse<TopicoDto> response = _topicosService.list(curso, page, size);
+           Page<TopicoDto> response = topicosService.list(curso, pageable);
            return ResponseEntity.ok(response);
        }catch (EntityNotFoundException e) {
            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Os tópicos não foram encontrados!");
@@ -50,7 +55,7 @@ public class TopicosController {
             UriComponentsBuilder uriBuilder
     ) throws ResponseStatusException {
         try {
-            TopicoDto topico = _topicosService.create(topicoForm);
+            TopicoDto topico = topicosService.create(topicoForm);
             URI uri = uriBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
             return ResponseEntity.created(uri).body(topico);
         }catch (EntityNotFoundException e) {
@@ -63,7 +68,7 @@ public class TopicosController {
     @GetMapping("/{id}")
     public TopicoDetailsDto findOne(@PathVariable Long id) {
         try {
-            TopicoDetailsDto topico = _topicosService.findOne(id);
+            TopicoDetailsDto topico = topicosService.findOne(id);
             return topico;
         }catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "O tópico não foi encontrado!");
@@ -76,7 +81,7 @@ public class TopicosController {
             @RequestBody @Valid AttTopicoForm attTopicoForm
     ) throws ResponseStatusException {
         try {
-            TopicoDto topicoDto = _topicosService.update(id, attTopicoForm);
+            TopicoDto topicoDto = topicosService.update(id, attTopicoForm);
             return ResponseEntity.ok(topicoDto);
         }catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "O tópico não foi encontrado!");
@@ -89,7 +94,7 @@ public class TopicosController {
     @DeleteMapping("/{id}")
     public ResponseEntity delete(@PathVariable Long id) throws ResponseStatusException {
         try {
-            Boolean delete = _topicosService.delete(id);
+            Boolean delete = topicosService.delete(id);
             return ResponseEntity.ok().build();
         }catch (EntityNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "O tópico não foi encontrado!");
