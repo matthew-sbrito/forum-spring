@@ -8,6 +8,7 @@ import br.com.techsoft.forum.forms.TopicoForm;
 import br.com.techsoft.forum.services.TopicosService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,6 +51,7 @@ public class TopicosController {
     }
 
     @PostMapping
+    @CacheEvict(value = "topicsList", allEntries = true)
     public ResponseEntity<TopicoDto> create(
             @RequestBody @Valid TopicoForm topicoForm,
             UriComponentsBuilder uriBuilder
@@ -76,6 +78,7 @@ public class TopicosController {
     }
 
     @PutMapping("/{id}")
+    @CacheEvict(value = "topicsList", allEntries = true)
     public ResponseEntity<TopicoDto> update(
             @PathVariable Long id,
             @RequestBody @Valid AttTopicoForm attTopicoForm
@@ -92,6 +95,7 @@ public class TopicosController {
     }
 
     @DeleteMapping("/{id}")
+    @CacheEvict(value = "topicsList", allEntries = true)
     public ResponseEntity delete(@PathVariable Long id) throws ResponseStatusException {
         try {
             Boolean delete = topicosService.delete(id);
