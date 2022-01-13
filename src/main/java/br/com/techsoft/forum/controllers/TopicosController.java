@@ -1,10 +1,12 @@
 package br.com.techsoft.forum.controllers;
 
+import br.com.techsoft.forum.config.context.ApplicationContext;
 import br.com.techsoft.forum.dtos.TopicoDetailsDto;
 import br.com.techsoft.forum.dtos.TopicoDto;
 
 import br.com.techsoft.forum.forms.AttTopicoForm;
 import br.com.techsoft.forum.forms.TopicoForm;
+import br.com.techsoft.forum.models.Usuario;
 import br.com.techsoft.forum.services.TopicosService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -52,12 +54,13 @@ public class TopicosController {
 
     @PostMapping
     @CacheEvict(value = "topicsList", allEntries = true)
-    public ResponseEntity<TopicoDto> create(
+    public ResponseEntity<TopicoDetailsDto> create(
             @RequestBody @Valid TopicoForm topicoForm,
             UriComponentsBuilder uriBuilder
     ) throws ResponseStatusException {
         try {
-            TopicoDto topico = topicosService.create(topicoForm);
+            Usuario user = ApplicationContext.authenticatedUser();
+            TopicoDetailsDto topico = topicosService.create(topicoForm, user);
             URI uri = uriBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
             return ResponseEntity.created(uri).body(topico);
         }catch (EntityNotFoundException e) {
@@ -98,7 +101,8 @@ public class TopicosController {
     @CacheEvict(value = "topicsList", allEntries = true)
     public ResponseEntity delete(@PathVariable Long id) throws ResponseStatusException {
         try {
-            Boolean delete = topicosService.delete(id);
+            Usuario user = ApplicationContext.authenticatedUser();
+            Boolean delete = topicosService.delete(id, user);
             return ResponseEntity.ok().build();
         }catch (EntityNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "O tópico não foi encontrado!");

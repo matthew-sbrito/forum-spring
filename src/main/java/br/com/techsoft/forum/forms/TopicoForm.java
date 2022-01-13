@@ -2,6 +2,7 @@ package br.com.techsoft.forum.forms;
 
 import br.com.techsoft.forum.models.Curso;
 import br.com.techsoft.forum.models.Topico;
+import br.com.techsoft.forum.models.Usuario;
 import br.com.techsoft.forum.repositories.CursoRepository;
 
 import javax.persistence.EntityNotFoundException;
@@ -21,14 +22,14 @@ public class TopicoForm {
     @NotNull @NotEmpty
     private String nomeCurso;
 
-    public Topico get(CursoRepository cursoRepository) throws EntityNotFoundException {
+    public Topico get(CursoRepository cursoRepository, Usuario user) throws EntityNotFoundException {
         Curso curso = cursoRepository.findByNomeIgnoreCase(this.nomeCurso);
 
         if(curso == null) {
             throw new EntityNotFoundException();
         }
 
-        return new Topico(titulo, mensagem, curso);
+        return new Topico(titulo, mensagem, curso, user);
     }
 
     public String getTitulo() {

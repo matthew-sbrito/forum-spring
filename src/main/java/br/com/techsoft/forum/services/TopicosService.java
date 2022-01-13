@@ -5,6 +5,7 @@ import br.com.techsoft.forum.dtos.TopicoDto;
 import br.com.techsoft.forum.forms.AttTopicoForm;
 import br.com.techsoft.forum.forms.TopicoForm;
 import br.com.techsoft.forum.models.Topico;
+import br.com.techsoft.forum.models.Usuario;
 import br.com.techsoft.forum.repositories.CursoRepository;
 import br.com.techsoft.forum.repositories.TopicoRepository;
 
@@ -37,10 +38,10 @@ public class TopicosService {
         return pagingTopic.map(TopicoDto::new);
     }
 
-    public TopicoDto create(TopicoForm topicoForm) throws EntityNotFoundException {
-        Topico topico = topicoForm.get(cursoRepository);
+    public TopicoDetailsDto create(TopicoForm topicoForm, Usuario user) throws EntityNotFoundException {
+        Topico topico = topicoForm.get(cursoRepository, user);
         Topico topicoSave = topicoRepository.save(topico);
-        return new TopicoDto(topicoSave);
+        return new TopicoDetailsDto(topicoSave);
     }
 
     public TopicoDetailsDto findOne(Long id) throws EntityNotFoundException {
@@ -72,15 +73,21 @@ public class TopicosService {
         return new TopicoDto(topico);
     }
 
-    public boolean delete(Long id) throws EntityNotFoundException {
+    public boolean delete(Long id, Usuario user) throws EntityNotFoundException {
         Optional<Topico> findTopico = topicoRepository.findById(id);
 
         if(!findTopico.isPresent()){
             throw new EntityNotFoundException();
         }
 
-        topicoRepository.delete(findTopico.get());
+        Topico topico = findTopico.get();
 
-        return true;
+        if(topico.getAutor().equals(user)){
+            topicoRepository.delete(topico);
+            return true;
+        }
+
+
+        return false;
     }
 }
