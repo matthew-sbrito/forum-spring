@@ -1,6 +1,8 @@
 package br.com.techsoft.forum.services;
 
 import br.com.techsoft.forum.models.Usuario;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,5 +32,19 @@ public class TokenService {
                 .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
+    }
+
+    public Claims decoded(String token) {
+       try {
+           Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+           return claimsJws.getBody();
+       } catch (Exception e) {
+           return null;
+       }
+    }
+
+    public Long getIdUser(String token) {
+        Claims claims = decoded(token);
+        return Long.parseLong(claims.getSubject());
     }
 }
