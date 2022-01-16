@@ -4,6 +4,8 @@ import br.com.techsoft.forum.dtos.TokenDto;
 import br.com.techsoft.forum.forms.LoginForm;
 import br.com.techsoft.forum.services.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +20,9 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthenticateController {
+@Profile(value = {"prod", "test"})
+public class AuthenticateController
+{
 
     @Autowired
     AuthenticationManager authenticationManager;

@@ -73,7 +73,7 @@ public class TopicosService {
         return new TopicoDto(topico);
     }
 
-    public boolean delete(Long id, Usuario user) throws EntityNotFoundException {
+    public boolean delete(Long id) throws EntityNotFoundException {
         Optional<Topico> findTopico = topicoRepository.findById(id);
 
         if(!findTopico.isPresent()){
@@ -82,12 +82,9 @@ public class TopicosService {
 
         Topico topico = findTopico.get();
 
-        if(topico.getAutor().equals(user)){
-            topicoRepository.delete(topico);
-            return true;
-        }
 
+        topicoRepository.delete(topico);
 
-        return false;
+        return true;
     }
 }

@@ -101,8 +101,7 @@ public class TopicosController {
     @CacheEvict(value = "topicsList", allEntries = true)
     public ResponseEntity delete(@PathVariable Long id) throws ResponseStatusException {
         try {
-            Usuario user = ApplicationContext.authenticatedUser();
-            Boolean delete = topicosService.delete(id, user);
+            Boolean delete = topicosService.delete(id);
             return ResponseEntity.ok().build();
         }catch (EntityNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "O tópico não foi encontrado!");
